@@ -1,0 +1,69 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Sat Jan 27 23:28:27 2018
+
+@author: hankk
+@mission: read and explore data
+"""
+
+import os
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+
+path = "D:/myProject/kaggle_mercari/datasets/train.tsv"
+os.chdir(path)
+
+data = pd.read_table("train.tsv")
+
+# prin base information of data
+print("data size:")
+print("nrow %d, ncol %d" % data.shape)
+print(data.dtypes)
+
+# print head of single variable
+for item in data.columns:
+    print(data[item].head())
+
+
+data.item_condition_id.value_counts()
+
+
+"""
+dataset preprocess and univariate for single var
+
+"""
+# 1: counts for item_condition_id
+counts_conditon = data.item_condition_id.value_counts(dropna=False)
+plt.title("bar plot for item_condition_id")
+plt.bar(counts_conditon.index, counts_conditon)
+plt.show()
+# mode is 1
+
+# 2:
+# copy data
+# trans nan in brand_name to no_brand and plot barplot
+# too many items in this variable
+# 品牌数量一共4800+，需要对品牌变量进行预处理，使之可以进行建模
+df = data.copy()
+df["brand_name"] = df["brand_name"].fillna("no_brand")
+brand_numbers = len(df.brand_name.unique())
+g_brand = df["price"].groupby(df["brand_name"])
+group_stats_brand = g_brand.describe()
+
+# 3:
+# describe of price
+# 价格分布非常不均匀，需要找到高价商品的特征
+desc_price = df["price"].describe()
+
+# 4:
+# shiping counts for
+# 包邮的货品价格总体更低 
+counts_shipping = df["shipping"].value_counts(dropna=False)
+g_shipping = df["price"].groupby(df["shipping"])
+g_shipping.describe()
+
+
+
+
+
